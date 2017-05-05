@@ -272,7 +272,13 @@ module Boxr
     end
 
     def ensure_id(item)
-      return item if item.class == String || item.class == Fixnum || item.nil?
+      # Ruby 2.4 unified Fixnum and Bignum into Integer.  This tests for Ruby 2.4
+      if 1.class == Integer
+        return item if item.class == String || item.class == Integer || item.nil?
+      else
+        return item if item.class == String || item.class == Fixnum || item.class == Bignum || item.nil?
+      end
+
       return item.id if item.respond_to?(:id)
       raise BoxrError.new(boxr_message: "Expecting an id of class String or Fixnum, or object that responds to :id")
     end
@@ -288,9 +294,10 @@ module Boxr
       restored_item
     end
 
-    def create_shared_link(uri, item_id, access, unshared_at, can_download, can_preview)
+    def create_shared_link(uri, item_id, access, unshared_at, can_download, can_preview, password)
       attributes = {shared_link: {access: access}}
       attributes[:shared_link][:unshared_at] = unshared_at.to_datetime.rfc3339 unless unshared_at.nil?
+      attributes[:shared_link][:password] = password unless password.nil?
       attributes[:shared_link][:permissions] = {} unless can_download.nil? && can_preview.nil?
       attributes[:shared_link][:permissions][:can_download] = can_download unless can_download.nil?
       attributes[:shared_link][:permissions][:can_preview] = can_preview unless can_preview.nil?
