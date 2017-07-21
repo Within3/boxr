@@ -23,6 +23,19 @@ module Boxr
       collaboration
     end
 
+    def add_file_collaboration(file, accessible_by, role, fields: [], notify: nil)
+      file_id = ensure_id(file)
+      query = build_fields_query(fields, COLLABORATION_FIELDS_QUERY)
+      query[:notify] = :notify unless notify.nil?
+
+      attributes = {item: {id: file_id, type: :file}}
+      attributes[:accessible_by] = accessible_by
+      attributes[:role] = validate_role(role)
+
+      collaboration, response = post(COLLABORATIONS_URI, attributes, query: query)
+      collaboration
+    end
+
     def edit_collaboration(collaboration, role: nil, status: nil)
       collaboration_id = ensure_id(collaboration)
       uri = "#{COLLABORATIONS_URI}/#{collaboration_id}"
@@ -62,7 +75,7 @@ module Boxr
 
 
     private
-    
+
     def validate_role(role)
       case role
       when :previewer_uploader
@@ -75,7 +88,7 @@ module Boxr
 
       role = role.to_s
       raise BoxrError.new(boxr_message: "Invalid collaboration role: '#{role}'") unless VALID_COLLABORATION_ROLES.include?(role)
-      
+
       role
     end
   end
