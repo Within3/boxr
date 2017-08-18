@@ -248,6 +248,15 @@ module Boxr
       restore_trashed_item(uri, name, parent_id)
     end
 
+    def annotations_for_file(file, file_version)
+      file_id = ensure_id(file)
+      file_version_id = ensure_id(file_version)
+      uri = "#{FILES_URI}/#{file_id}/annotations?version=#{file_version_id}"
+      puts "URI = '#{uri}'"
+      annotations, response = get(uri)
+      annotations.entries
+    end
+
 
     private
 
