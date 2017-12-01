@@ -248,6 +248,36 @@ module Boxr
       restore_trashed_item(uri, name, parent_id)
     end
 
+    def representations_of_file(file, hints: [])
+      file_id = ensure_id(file)
+      uri = "#{FILES_URI}/#{file_id}?fields=representations"
+
+      headers = {}
+      unless hints.empty?
+        headers["X-Rep-Hints"] = "[#{hints.join(',')}]"
+      end
+
+      result, response = get(uri, extra_headers: headers)
+      result
+    end
+
+    def download_representation(file, hint: nil, asset_path: nil, target: nil)
+      representations = representations_of_file(file, hints: [hint])
+
+      media_type = hint.split("?").first
+      representation = representations.representations.entries.find { |e| e.representation == media_type }
+
+      url_template = Addressable::Template.new(representation.content.url_template)
+      uri = url_template.expand({"asset_path" => asset_path})
+
+      file_data, response = get(uri, process_response: false)
+
+      File.open(target, "w") do |file|
+        file.write(file_data)
+      end
+
+      file_data
+    end
 
     private
 
