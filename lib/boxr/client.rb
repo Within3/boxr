@@ -90,11 +90,11 @@ module Boxr
 
     private
 
-    def get(uri, query: nil, success_codes: [200], process_response: true, if_match: nil, box_api_header: nil, follow_redirect: true)
+    def get(uri, query: nil, success_codes: [200], process_response: true, if_match: nil, box_api_header: nil, follow_redirect: true, extra_headers: {})
       uri = Addressable::URI.encode(uri)
 
       res = with_auto_token_refresh do
-        headers = standard_headers
+        headers = standard_headers.merge(extra_headers)
         headers['If-Match'] = if_match unless if_match.nil?
         headers['BoxApi'] = box_api_header unless box_api_header.nil?
 
