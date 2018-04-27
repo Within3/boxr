@@ -248,13 +248,26 @@ module Boxr
       restore_trashed_item(uri, name, parent_id)
     end
 
-    def annotations_for_file(file, file_version)
+    def annotations_for_file(file, version:, limit: 100, marker: nil, fields: nil)
       file_id = ensure_id(file)
-      file_version_id = ensure_id(file_version)
-      uri = "#{FILES_URI}/#{file_id}/annotations?version=#{file_version_id}"
-      puts "URI = '#{uri}'"
-      annotations, response = get(uri)
-      annotations.entries
+      version_id = ensure_id(version)
+      uri = "#{FILES_URI}/#{file_id}/annotations?version=#{version_id}"
+
+      fields = ( fields.present? ) ? fields.join(',') : nil
+
+      query = {
+        limit:   limit,
+        marker:  marker,
+        fields:  fields
+      }
+
+      annotations, response = get(uri, query: query)
+
+      BoxrMash.new({
+        annotations:  annotations.entries,
+        limit:        annotations.limit,
+        next_marker:  annotations.next_marker
+      })
     end
 
 
