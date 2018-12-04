@@ -14,5 +14,31 @@ module Boxr
       result, response = delete(uri, if_match: if_match)
       result
     end
+
+    def create_point_annotation(file_version, message:, x:, y:, page:, thread_id:, page_dimensions:)
+      file_version_id = ensure_id(file_version)
+      uri = "#{ANNOTATIONS_URI}/"
+
+      attributes = {
+        item:{
+          type: "file_version",
+          id: file_version_id
+        },
+        details: {
+          type: "point",
+          location: {
+            x: x,
+            y: y,
+            page: page,
+            dimensions: page_dimensions
+          },
+          threadID: thread_id
+        },
+        message: message,
+        thread: ""
+      }
+
+      new_annotation, response = post(uri, attributes)
+    end
   end
 end
