@@ -40,5 +40,30 @@ module Boxr
 
       new_annotation, response = post(uri, attributes)
     end
+
+    def create_highlight_annotation(file_version, message:, quad_points:, page:, thread_id:, page_dimensions:)
+      file_version_id = ensure_id(file_version)
+      uri = "#{ANNOTATIONS_URI}/"
+
+      attributes = {
+        item: {
+          type: "file_version",
+          id: file_version_id
+        },
+        details: {
+          type: "highlight-comment",
+          location: {
+            page: page,
+            quadPoints: quad_points,
+            dimensions: page_dimensions
+          },
+          threadID: thread_id
+        },
+        message: message,
+        thread: ""
+      }
+
+      new_annotation, response = post(uri, attributes)
+    end
   end
 end
