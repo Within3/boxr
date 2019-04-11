@@ -15,35 +15,23 @@ module Boxr
       result
     end
 
-    def create_point_annotation(file_version, message:, x:, y:, page:, thread_id:, page_dimensions:)
+    def create_annotation(file_version, coordinates:, message:, page:, page_dimensions:, thread_id:)
       file_version_id = ensure_id(file_version)
       uri = "#{ANNOTATIONS_URI}/"
 
-      attributes = {
-        item:{
-          type: "file_version",
-          id: file_version_id
-        },
-        details: {
-          type: "point",
-          location: {
-            x: x,
-            y: y,
-            page: page,
-            dimensions: page_dimensions
-          },
-          threadID: thread_id
-        },
-        message: message,
-        thread: ""
+      type = ( coordinates.size > 2 ) ? "point" : "comment-highlight"
+
+      location = {
+        page: page,
+        dimensions: page_dimensions
       }
 
-      new_annotation, response = post(uri, attributes)
-    end
-
-    def create_highlight_annotation(file_version, message:, quad_points:, page:, thread_id:, page_dimensions:)
-      file_version_id = ensure_id(file_version)
-      uri = "#{ANNOTATIONS_URI}/"
+      if type == "point"
+        location[:x] = coordinates.first
+        location[:y] = coordinates.last
+      else
+        location[:quadPoints] = coordinates
+      end
 
       attributes = {
         item: {
@@ -51,19 +39,36 @@ module Boxr
           id: file_version_id
         },
         details: {
-          type: "highlight-comment",
-          location: {
-            page: page,
-            quadPoints: quad_points,
-            dimensions: page_dimensions
-          },
+          type: type,
+          location: location,
           threadID: thread_id
         },
         message: message,
         thread: ""
       }
 
-      new_annotation, response = post(uri, attributes)
+      new_annotation, respseon = post(uri, attributes)
+
+    end
+
+    def create_point_annotation(file_version, message:, x:, y:, page:, thread_id:, page_dimensions:)
+      create_annotation(file_version, {
+        coordinates: [x, y],
+        message: message,
+        page: page,
+        page_dimensions: page_dimensions,
+        thread_id: thread_id
+      })
+    end
+
+    def create_highlight_annotation(file_version, message:, quad_points:, page:, thread_id:, page_dimensions:)
+      create_annotation(file_version, {
+        coordinates: quad_points,
+        message: message,
+        page: page,
+        page_dimensions: page_dimensions,
+        thread_id: thread_id
+      })
     end
   end
 end
