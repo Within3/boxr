@@ -47,7 +47,7 @@ module Boxr
         thread: ""
       }
 
-      new_annotation, respseon = post(uri, attributes)
+      new_annotation, response = post(uri, attributes)
 
     end
 
