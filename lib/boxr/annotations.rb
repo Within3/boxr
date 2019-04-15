@@ -47,7 +47,6 @@ module Boxr
       }
 
       new_annotation, response = post(uri, attributes)
-
     end
 
     def create_point_annotation(file_version, message:, x:, y:, page:, thread_id:, page_dimensions:)
