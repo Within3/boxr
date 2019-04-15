@@ -27,8 +27,7 @@ module Boxr
       }
 
       if type == "point"
-        location[:x] = coordinates.first
-        location[:y] = coordinates.last
+        location.merge!(coordinates)
       else
         location[:quadPoints] = coordinates
       end
@@ -53,7 +52,7 @@ module Boxr
 
     def create_point_annotation(file_version, message:, x:, y:, page:, thread_id:, page_dimensions:)
       create_annotation(file_version, {
-        coordinates: [x, y],
+        coordinates: { x: x, y: y },
         message: message,
         page: page,
         page_dimensions: page_dimensions,
