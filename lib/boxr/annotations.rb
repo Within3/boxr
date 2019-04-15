@@ -19,7 +19,7 @@ module Boxr
       file_version_id = ensure_id(file_version)
       uri = "#{ANNOTATIONS_URI}/"
 
-      type = ( coordinates.size > 2 ) ? "point" : "comment-highlight"
+      type = ( coordinates.is_a?(Hash) ) ? "point" : "highlight-comment"
 
       location = {
         page: page,
